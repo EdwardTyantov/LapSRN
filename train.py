@@ -122,5 +122,6 @@ def main():
                 param_group['lr'] = lr
         checkpoint(opt, epoch, model)
 
+
 if __name__ == '__main__':
     sys.exit(main())
