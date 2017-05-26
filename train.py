@@ -10,16 +10,16 @@ from torch.utils.data import DataLoader
 #
 from model import LasSRN
 from data import get_training_set, get_test_set
+from __init__ import PACKAGE_DIR
 
 
 def CharbonnierLoss(predict, target):
     return torch.mean(torch.sqrt(torch.pow((predict-target), 2) + 1e-6)) # epsilon=1e-3
 
 
-def train(epoch, model, criterion, optimizer, training_data_loader):
+def train(epoch, model, criterion, optimizer, training_data_loader, opt):
     loss_meter = 0
-    for iteration, batch in enumerate(training_data_loader, 1):
-        print 'Batch', iteration
+    for iteration, batch in enumerate(training_data_loader):
         LR, HR_2_target, HR_4_target, HR_8_target = Variable(batch[0].cuda(async=True)), Variable(batch[1].cuda(async=True)), \
                                                     Variable( batch[2].cuda(async=True)), Variable(batch[3].cuda(async=True))
 
@@ -35,8 +35,9 @@ def train(epoch, model, criterion, optimizer, training_data_loader):
         loss.backward()
         optimizer.step()
 
-        # print("===> Epoch[{}]({}/{}): Loss: {:.4f}".format(epoch, iteration, len(training_data_loader), loss.data[0]))
-        print "===> Epoch {}, Avg. Loss: {:.4f}".format(epoch, loss_meter / float(iteration))
+        if iteration and iteration % 10 == 0:
+            print "===> Epoch {}, Batch {}/{} Avg. Loss: {:.4f}".format(epoch, iteration,
+                                            len(training_data_loader), loss_meter / float(iteration))
 
 
 def test(model, criterion, testing_data_loader):
@@ -67,10 +68,10 @@ def test(model, criterion, testing_data_loader):
 
 
 def checkpoint(opt, epoch, model):
-
+    print 'Saving checkpoint epoch=%d' % (epoch, )
     if not os.path.exists(opt.checkpoint):
         os.makedirs(opt.checkpoint)
-    model_out_path = "model/model_epoch_{}.pth".format(epoch)
+    model_out_path = os.path.join(PACKAGE_DIR, "model/model_epoch_{}.pth".format(epoch))
     torch.save(model, model_out_path)
     print "Checkpoint saved to {}".format(model_out_path)
 
@@ -78,7 +79,7 @@ def checkpoint(opt, epoch, model):
 def main():
     parser = argparse.ArgumentParser(description='PyTorch LapSRN')
     parser.add_argument('--batchSize', type=int, default=64, help='training batch size')
-    parser.add_argument('--train_dir', type=str, default='/home/tyantov/real_photo_12k_resized',
+    parser.add_argument('--train_dir', type=str, default=None,
                         help='path to train dir')
     parser.add_argument('--testBatchSize', type=int, default=10, help='testing batch size')
     parser.add_argument('--nEpochs', type=int, default=30, help='number of epochs to train for')
@@ -89,14 +90,14 @@ def main():
     opt = parser.parse_args()
 
     if not torch.cuda.is_available():
-        raise Exception("No GPU found, please run without --cuda")
+        raise Exception("No GPU found")
 
     torch.manual_seed(opt.seed)
     random.seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
 
     print('===> Loading datasets')
-    train_set = get_training_set(opt.train_dir) #TODO: to param
+    train_set = get_training_set(opt.train_dir)
     test_set = get_test_set()
     training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize, shuffle=True)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=opt.threads, batch_size=opt.testBatchSize, shuffle=False)
@@ -104,7 +105,7 @@ def main():
     print '===> Building model'
     model = LasSRN()
 
-    #criterion = CharbonnierLoss() #TODO: bugs to cuda
+    #criterion = CharbonnierLoss() #TODO: bugs, implement class, cuda()
     criterion = nn.MSELoss()
     criterion = criterion.cuda()
     model = model.cuda()
@@ -114,14 +115,14 @@ def main():
     print 'Starting learning'
     for epoch in range(1, opt.nEpochs + 1):
         print 'Epoch num=%d' % epoch
-        train(epoch, model, criterion, optimizer, training_data_loader)
+        train(epoch, model, criterion, optimizer, training_data_loader, opt)
         test(model, criterion, testing_data_loader)
         if epoch:
             lr = lr/2
+            print 'Setting learing rate to %f' % (lr, )
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         checkpoint(opt, epoch, model)
-
 
 if __name__ == '__main__':
     sys.exit(main())

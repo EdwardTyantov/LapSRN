@@ -79,7 +79,11 @@ def HR_8_transform(crop_size):
         RandomHorizontalFlip(),
     ])
 
-def get_training_set(train_dir):
+
+def get_training_set(train_dir=None):
+    if train_dir is None:
+        root_dir = download_bsd300()
+        train_dir = os.path.join(root_dir, "train")
 
     return DatasetFromFolder(train_dir,
                              LR_transform=LR_transform(CROP_SIZE),
