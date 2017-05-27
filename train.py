@@ -81,13 +81,13 @@ def checkpoint(opt, epoch, model):
 
 def main():
     parser = argparse.ArgumentParser(description='PyTorch LapSRN')
-    parser.add_argument('--batchSize', type=int, default=24, help='training batch size')
+    parser.add_argument('--batchSize', type=int, default=20, help='training batch size')
     parser.add_argument('--train_dir', type=str, default=None,
                         help='path to train dir')
     parser.add_argument('--testBatchSize', type=int, default=10, help='testing batch size')
-    parser.add_argument('--nEpochs', type=int, default=30, help='number of epochs to train for')
+    parser.add_argument('--nEpochs', type=int, default=10, help='number of epochs to train for')
     parser.add_argument('--checkpoint', type=str, default=os.path.join(PACKAGE_DIR, 'model'), help='Path to checkpoint')
-    parser.add_argument('--lr', type=float, default=1e-2, help='Learning Rate. Default=1e5')
+    parser.add_argument('--lr', type=float, default=1e-2, help='Learning Rate. Default=1e2')
     parser.add_argument('--threads', type=int, default=4, help='number of threads for data loader to use')
     parser.add_argument('--seed', type=int, default=123, help='random seed to use. Default=123')
     parser.add_argument('--loss_type', type=str, default='pl', help='MSE or PerceptualLoss loss (mse, pl)')

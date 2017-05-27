@@ -68,11 +68,14 @@ def main():
         HR_2 = process(HR_2, cb, cr)
         HR_4 = process(HR_4, cb, cr)
         HR_8 = process(HR_8, cb, cr)
-        HR_2.save(opt.save_folfer + '/' + "%s-mul2.jpg" % img_name)
-        HR_4.save(opt.save_folfer + '/' + "%s-mul4.jpg" % img_name)
-        HR_8.save(opt.save_folfer + '/' + "%s-mul8.jpg" % img_name)
-        print 'Done'
-        break #huge photo second
+
+        HR_2.save(os.path.join(opt.save_folfer, '%s-mul2.jpg' % img_name))
+        HR_4.save(os.path.join(opt.save_folfer, '%s-mul4.jpg' % img_name))
+        HR_8.save(os.path.join(opt.save_folfer, '%s-mul8.jpg' % img_name))
+
+
+    print 'Done'
+
 
 
 if __name__ == '__main__':

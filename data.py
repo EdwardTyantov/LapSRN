@@ -76,7 +76,7 @@ def HR_8_transform(crop_size):
     return Compose([
         RandomCrop(crop_size),
         RandomScale(),
-        RandomRotate(),
+        #RandomRotate(),
         RandomHorizontalFlip(),
     ])
 
