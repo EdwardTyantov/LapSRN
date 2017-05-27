@@ -72,7 +72,7 @@ def main():
         HR_4.save(opt.save_folfer + '/' + "%s-mul4.jpg" % img_name)
         HR_8.save(opt.save_folfer + '/' + "%s-mul8.jpg" % img_name)
         print 'Done'
-        break
+        break #huge photo second
 
 
 if __name__ == '__main__':

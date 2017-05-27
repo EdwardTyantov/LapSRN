@@ -20,10 +20,10 @@ Based on the code: https://github.com/BUPTLdy/Pytorch-LapSRN (a lot of refactori
 
 - Train the model
 ```sh
-python2.7 -u /home/tyantov/workspace/superres/train.py --train_dir ~/real_photo_12k_resized --loss_type mse --lr 1e-5 --batchSize 32
+python2.7 -u train.py --train_dir ~/real_photo_12k_resized --loss_type mse --lr 1e-5 --batchSize 32
 ```
 ```sh
-python2.7 -u /home/tyantov/workspace/superres/train.py --train_dir ~/real_photo_12k_resized --loss_type pl --lr 1e-2 --batchSize 24
+python2.7 -u train.py --train_dir ~/real_photo_12k_resized --loss_type pl --lr 1e-2 --batchSize 24
 ```
 
 - Test the model

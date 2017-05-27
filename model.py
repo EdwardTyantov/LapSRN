@@ -39,7 +39,7 @@ def bilinear_upsample_weights(filter_size, weights):
     return torch.Tensor(weights)
 
 
-CNUM = 128 #64
+CNUM = 64 #128
 
 
 class FeatureExtraction(nn.Module):
