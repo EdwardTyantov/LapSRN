@@ -118,8 +118,8 @@ def main():
     criterion = criterion.cuda()
 
     lr = opt.lr
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-4)  # TODO, to config
-    print 'Starting learning'
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-5)  # TODO, to config
+    print 'Starting learning', 'lr=', lr, 'batch_size=', opt.batchSize
     for epoch in range(1, opt.nEpochs + 1):
         print 'Epoch num=%d' % epoch
         train(epoch, model, criterion, optimizer, training_data_loader)
