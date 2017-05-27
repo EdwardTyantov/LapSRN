@@ -5,6 +5,7 @@ from six.moves import urllib
 from torchvision.transforms import Compose, CenterCrop, RandomCrop, ToTensor, Scale, RandomHorizontalFlip
 from dataset import DatasetFromFolder
 from PIL import Image
+from __init__ import DATASET_DIR, BSD_URL
 
 
 CROP_SIZE = 256
@@ -25,13 +26,13 @@ class RandomScale(object):
         return img.resize((int(shape[0]*scale), int(shape[1]*scale)), Image.BICUBIC)
 
 
-def download_bsd300(dest='dataset'):
+def download_bsd300(dest=DATASET_DIR):
     output_image_dir = os.path.join(dest, "BSDS300/images")
 
     if not os.path.exists(output_image_dir):
         if not os.path.exists(dest):
             os.makedirs(dest)
-        url = "http://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300-images.tgz"
+        url = BSD_URL
         print("downloading url ", url)
 
         data = urllib.request.urlopen(url)

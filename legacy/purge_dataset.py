@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"Done for deleting small pictures"
 import os, sys
 from PIL import Image
 

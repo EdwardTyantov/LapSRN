@@ -13,7 +13,6 @@ def is_image_file(filename):
 def load_img(filepath):
     img = Image.open(filepath).convert('YCbCr')
     y, _, _ = img.split()
-
     return y
 
 
@@ -29,7 +28,6 @@ class DatasetFromFolder(data.Dataset):
 
     def __getitem__(self, index):
         input = load_img(self.image_filenames[index])
-        #print input.size, self.image_filenames[index]
         HR_8 = self.HR_8_transform(input)
         HR_4 = self.HR_4_transform(HR_8)
         HR_2 = self.HR_2_transform(HR_8)

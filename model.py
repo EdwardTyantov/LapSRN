@@ -43,7 +43,7 @@ class FeatureExtraction(nn.Module):
     def __init__(self, level):
         super(FeatureExtraction, self).__init__()
         if level==1:
-            self.conv0 = nn.Conv2d(1, 64, (3, 3), (1, 1), (1, 1))
+            self.conv0 = nn.Conv2d(1, 64, (3, 3), (1, 1), (1, 1)) #RGB
         else:
             self.conv0 = nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1))
         self.conv1 = nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1))
@@ -69,8 +69,8 @@ class FeatureExtraction(nn.Module):
 class ImageReconstruction(nn.Module):
     def __init__(self):
         super(ImageReconstruction, self).__init__()
-        self.conv_R = nn.Conv2d(64, 1, (3, 3), (1, 1), (1, 1))
-        self.convt_I = nn.ConvTranspose2d(1, 1, (4, 4), (2, 2), (1, 1))
+        self.conv_R = nn.Conv2d(64, 1, (3, 3), (1, 1), (1, 1)) # RGB
+        self.convt_I = nn.ConvTranspose2d(1, 1, (4, 4), (2, 2), (1, 1)) #RGB
         self.convt_I.weight.data.copy_(bilinear_upsample_weights(4, self.convt_I.weight))     
         
     def forward(self, LR, convt_F):
