@@ -3,7 +3,7 @@ Implementation of the paper [Deep Laplacian Pyramid Networks for Fast and Accura
 \+ Perceptual loss instead of MSE.
 
 Perseptual loss: VGG_16 with one input channel (Y-channel) with random weights. It's suitable according to [A Powerful Generative Model Using Random Weights
-for the Deep Image Representation](https://papers.nips.cc/paper/6568-a-powerful-generative-model-using-random-weights-for-the-deep-image-representation.pdf)
+for the Deep Image Representation](https://papers.nips.cc/paper/6568-a-powerful-generative-model-using-random-weights-for-the-deep-image-representation.pdf). Pretrained model didn't change anything (You can load it here()).
 
 Based on the code: https://github.com/BUPTLdy/Pytorch-LapSRN (a lot of refactoring and enhancements have been made).
 
@@ -25,6 +25,8 @@ python2.7 -u train.py --train_dir ~/real_photo_12k_resized --loss_type mse --lr 
 ```sh
 python2.7 -u train.py --train_dir ~/real_photo_12k_resized --loss_type pl --lr 1e-2 --batchSize 20
 ```
+
+To train perceptual loss with vgg: download model [here](https://cloud.mail.ru/public/Gn1R/n7yiRV3hR), put to model/, pass pretrained_vgg=1 to train.py.
 
 - Test the model
 

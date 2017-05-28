@@ -1,4 +1,4 @@
-#-*- coding: utf8 -*-
+# -*- coding: utf8 -*-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -30,34 +30,39 @@ def bilinear_upsample_weights(filter_size, weights):
                         f_in,
                         4,
                         4), dtype=np.float32)
-    
+
     upsample_kernel = upsample_filt(filter_size)
-    
+
     for i in xrange(f_out):
         for j in xrange(f_in):
             weights[i, j, :, :] = upsample_kernel
     return torch.Tensor(weights)
 
 
-CNUM = 128 #64
+CNUM = 64  # 64
 
 
 class FeatureExtraction(nn.Module):
     def __init__(self, level):
         super(FeatureExtraction, self).__init__()
-        if level==1:
-            self.conv0 = nn.Conv2d(1, CNUM, (3, 3), (1, 1), (1, 1)) #RGB
+        if level == 1:
+            self.conv0 = nn.Conv2d(1, CNUM / 4, (3, 3), (1, 1), (1, 1))  # RGB
         else:
-            self.conv0 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
-        self.conv1 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
-        self.conv2 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
-        self.conv3 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
-        self.conv4 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
-        self.conv5 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
+            self.conv0 = nn.Conv2d(CNUM, CNUM / 4, (3, 3), (1, 1), (1, 1))
+        self.conv1 = nn.Conv2d(CNUM / 4, CNUM / 4, (3, 3), (1, 1), (1, 1))
+        self.conv2 = nn.Conv2d(CNUM / 4, CNUM / 2, (3, 3), (1, 1), (1, 1))
+        self.conv3 = nn.Conv2d(CNUM / 2, CNUM / 2, (3, 3), (1, 1), (1, 1))
+        self.conv4 = nn.Conv2d(CNUM / 2, CNUM / 2, (3, 3), (1, 1), (1, 1))
+        self.conv5 = nn.Conv2d(CNUM / 2, CNUM / 2, (3, 3), (1, 1), (1, 1))
+        self.conv6 = nn.Conv2d(CNUM / 2, CNUM, (3, 3), (1, 1), (1, 1))
+        self.conv7 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
+        self.conv8 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
+        self.conv9 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
+        self.conv10 = nn.Conv2d(CNUM, CNUM, (3, 3), (1, 1), (1, 1))
         self.convt_F = nn.ConvTranspose2d(CNUM, CNUM, (4, 4), (2, 2), (1, 1))
-        self.LReLus = nn.LeakyReLU(negative_slope=0.2)
+        self.LReLus = nn.LeakyReLU(negative_slope=0.1)
         self.convt_F.weight.data.copy_(bilinear_upsample_weights(4, self.convt_F.weight))
-       
+
     def forward(self, x):
         out = self.LReLus(self.conv0(x))
         out = self.LReLus(self.conv1(out))
@@ -65,6 +70,11 @@ class FeatureExtraction(nn.Module):
         out = self.LReLus(self.conv3(out))
         out = self.LReLus(self.conv4(out))
         out = self.LReLus(self.conv5(out))
+        out = self.LReLus(self.conv6(out))
+        out = self.LReLus(self.conv7(out))
+        out = self.LReLus(self.conv8(out))
+        out = self.LReLus(self.conv9(out))
+        out = self.LReLus(self.conv10(out))
         out = self.LReLus(self.convt_F(out))
         return out
 
@@ -72,18 +82,18 @@ class FeatureExtraction(nn.Module):
 class ImageReconstruction(nn.Module):
     def __init__(self):
         super(ImageReconstruction, self).__init__()
-        self.conv_R = nn.Conv2d(CNUM, 1, (3, 3), (1, 1), (1, 1)) # RGB
-        self.convt_I = nn.ConvTranspose2d(1, 1, (4, 4), (2, 2), (1, 1)) #RGB
-        self.convt_I.weight.data.copy_(bilinear_upsample_weights(4, self.convt_I.weight))     
-        
+        self.conv_R = nn.Conv2d(CNUM, 1, (3, 3), (1, 1), (1, 1))  # RGB
+        self.convt_I = nn.ConvTranspose2d(1, 1, (4, 4), (2, 2), (1, 1))  # RGB
+        self.convt_I.weight.data.copy_(bilinear_upsample_weights(4, self.convt_I.weight))
+
     def forward(self, LR, convt_F):
         convt_I = self.convt_I(LR)
         conv_R = self.conv_R(convt_F)
-        
-        HR = convt_I+conv_R
+
+        HR = convt_I + conv_R
         return HR
-        
-        
+
+
 class LasSRN(nn.Module):
     def __init__(self):
         super(LasSRN, self).__init__()
@@ -97,11 +107,12 @@ class LasSRN(nn.Module):
     def forward(self, LR):
         convt_F1 = self.FeatureExtraction1(LR)
         HR_2 = self.ImageReconstruction1(LR, convt_F1)
-        
+
         convt_F2 = self.FeatureExtraction2(convt_F1)
         HR_4 = self.ImageReconstruction2(HR_2, convt_F2)
-        
+
         convt_F3 = self.FeatureExtraction3(convt_F2)
         HR_8 = self.ImageReconstruction3(HR_4, convt_F3)
-        
+
         return HR_2, HR_4, HR_8
+

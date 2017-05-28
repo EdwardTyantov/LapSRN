@@ -3,6 +3,7 @@ import sys, os, copy
 import torch
 from torch import nn
 from vgg import vgg16_bn
+from __init__ import IVGG_PATH
 
 
 class ContentLoss(nn.Module):
@@ -52,19 +53,25 @@ class PerceptualLoss(nn.Module):
         return self.loss.backward(retain_variables=retain_variables)
 
 
-def create_discriptor_net(content_weight=1.0, layers=None):
+def create_discriptor_net(content_weight=1.0, layers=None, pretrained=False):
     "Weights are not used"
     if layers is None:
         layers = ['relu_10'] #eq. relu4_2
     #VGG-random
-    cnn = vgg16_bn().features.cuda()
+    if not pretrained:
+        cnn = vgg16_bn()
+    else:
+        cnn = torch.load(IVGG_PATH)
+
+    cnn = cnn.features.cuda()
     content_losses = []
 
     #copy VGG into a new model with loss layers
     model = nn.Sequential().cuda()
 
     i = 1
-    for j, layer in enumerate(list(cnn)):
+    xlist = isinstance(cnn, torch.nn.DataParallel) and cnn.module or cnn
+    for j, layer in enumerate(list(xlist)):
         if isinstance(layer, nn.Conv2d):
             name = "conv_" + str(i)
             model.add_module(name, layer)
@@ -97,8 +104,8 @@ def create_discriptor_net(content_weight=1.0, layers=None):
 
 
 def test():
-    model, loss = create_discriptor_net(layers=['relu_4', 'relu_6', 'relu_8', 'relu_10'])
-    from __init__ import TEST_DIR
+    model, loss = create_discriptor_net(layers=['relu_4', 'relu_6', 'relu_8', 'relu_10'], pretrained=True)
+    from __init__ import TEST_DIR, DATASET_DIR
     from PIL import Image
     from torchvision.transforms import ToTensor
     from torch.autograd import Variable
@@ -113,7 +120,7 @@ def test():
     input = load_image(image_path)
     input = Variable(input.cuda(), requires_grad=False)
 
-    target_path = os.path.join(TEST_DIR, '14092.jpg')
+    target_path = os.path.join(DATASET_DIR, '14092.jpg')
     target = load_image(target_path)
     target = Variable(target.cuda(), requires_grad=False)
     print 'loss', loss

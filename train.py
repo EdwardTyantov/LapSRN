@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 #
 from model import LasSRN
 from data import get_training_set, get_test_set
-from __init__ import PACKAGE_DIR
+from __init__ import PACKAGE_DIR, MODEL_DIR
 from perceptual_loss import create_discriptor_net, PerceptualLoss
 
 
@@ -39,8 +39,8 @@ def train(epoch, model, criterion, optimizer, training_data_loader):
         optimizer.step()
 
         if iteration and iteration % 10 == 0:
-            print "===> Epoch {}, Batch {}/{} Avg. Loss: {:.4f}".format(epoch, iteration,
-                                            len(training_data_loader), loss_meter / float(iteration))
+            print "===> Epoch {}, Batch {}/{} Avg. Loss: {:.4f}, Batch Loss {:.4f}".format(epoch, iteration,
+                                            len(training_data_loader), loss_meter / float(iteration), loss.data[0])
 
 
 def test(model, criterion, testing_data_loader):
@@ -86,7 +86,8 @@ def main():
                         help='path to train dir')
     parser.add_argument('--testBatchSize', type=int, default=10, help='testing batch size')
     parser.add_argument('--nEpochs', type=int, default=10, help='number of epochs to train for')
-    parser.add_argument('--checkpoint', type=str, default=os.path.join(PACKAGE_DIR, 'model'), help='Path to checkpoint')
+    parser.add_argument('--pretrained_vgg', type=int, default=0, help='vgg for perceptual loss')
+    parser.add_argument('--checkpoint', type=str, default=MODEL_DIR, help='Path to checkpoint')
     parser.add_argument('--lr', type=float, default=1e-2, help='Learning Rate. Default=1e2')
     parser.add_argument('--threads', type=int, default=4, help='number of threads for data loader to use')
     parser.add_argument('--seed', type=int, default=123, help='random seed to use. Default=123')
@@ -112,7 +113,8 @@ def main():
 
     if opt.loss_type == 'pl':
         print 'Loading VGG-style (y-channel) for perceptual loss'
-        criterion = PerceptualLoss(*create_discriptor_net(layers=['relu_4', 'relu_6', 'relu_8', 'relu_10']))
+        criterion = PerceptualLoss(*create_discriptor_net(layers=['relu_4', 'relu_6', 'relu_8', 'relu_10'],
+                                                          pretrained=opt.pretrained_vgg))
     else:
         criterion = nn.MSELoss()
     criterion = criterion.cuda()

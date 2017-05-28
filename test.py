@@ -41,6 +41,7 @@ def main():
     parser.add_argument('--output_filename', type=str, help='where to save the output image')
     opt = parser.parse_args()
 
+
     images_list = glob(os.path.join(opt.test_folder, '*.jpg'))
     print 'images_list', len(images_list)
 
@@ -48,6 +49,7 @@ def main():
     print opt.model
     print 'Loaded'
     model = model.cuda()
+    model.eval()
 
     for image_path in images_list:
         print image_path
