@@ -3,7 +3,7 @@ Implementation of the paper [Deep Laplacian Pyramid Networks for Fast and Accura
 \+ Perceptual loss instead of MSE.
 
 Perseptual loss: VGG_16 with one input channel (Y-channel) with random weights. It's suitable according to [A Powerful Generative Model Using Random Weights
-for the Deep Image Representation](https://papers.nips.cc/paper/6568-a-powerful-generative-model-using-random-weights-for-the-deep-image-representation.pdf). Pretrained model didn't change anything (You can load it here()).
+for the Deep Image Representation](https://papers.nips.cc/paper/6568-a-powerful-generative-model-using-random-weights-for-the-deep-image-representation.pdf). Pretrained model didn't change anything (You can load it [here](https://cloud.mail.ru/public/Gn1R/n7yiRV3hR)).
 
 Based on the code: https://github.com/BUPTLdy/Pytorch-LapSRN (a lot of refactoring and enhancements have been made).
 
